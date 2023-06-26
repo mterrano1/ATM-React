@@ -4,6 +4,7 @@ const UserContext = React.createContext();
 const UserProvider = (props) => {
     const [user, setUser] = useState({});
     const [loggedIn, setLoggedIn] = useState(false);
+    const [newUser, setNewUser] = useState({});
 
     useEffect(() => {
         //Auto-login
@@ -29,12 +30,23 @@ const UserProvider = (props) => {
         setLoggedIn(true)
     }
 
+    const logout = () => {
+      setUser({})
+      setLoggedIn(false)
+    }
+
+    const handleUser = (user) => {
+      setNewUser(user)
+    }
+
     return (
         <UserContext.Provider value={{
             user,
             loggedIn,
             signup,
-            login
+            login,
+            logout,
+            handleUser
         }}>
             {props.children}
         </UserContext.Provider>
