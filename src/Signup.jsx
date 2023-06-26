@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { UserContext } from './UserContext';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
@@ -31,9 +32,9 @@ function Copyright(props) {
 const theme = createTheme();
 
 const Signup = () => {
-    // const { signup, handleUser } = useContext(UserContext);
-    // const navigate = useNavigate();
-    // const [errorsList, setErrorsList] = useState([]);
+    const { signup, handleUser } = useContext(UserContext);
+    const navigate = useNavigate();
+    const [errorsList, setErrorsList] = useState([]);
     const [newUser, setNewUser] = useState({
         first_name: '',
         last_name: '',
@@ -43,41 +44,26 @@ const Signup = () => {
         password_confirmation: ''     
     });
 
+    // Handles form submission and sends POST request to register new user
     const handleSubmit = (e) => {
-      e.preventDefault();
-      fetch('/signup', {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(newUser),
-      })
-      .then(r => r.json())
-      .then(user => console.log(user))
+        e.preventDefault();
+        fetch('http://localhost:3000/signup', {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(newUser),
+        })
+        .then(r => r.json())
+        .then(user => {
+            if (!user.errors) {
+                signup(user)
+                handleUser(user)
+                navigate('/')
+            } else {
+                const errors = user.errors.map(e => <li>{e}</li>)
+                setErrorsList(errors)
+            }
+        })
     }
-
-    // // Handles form submission and sends POST request to register new user
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     fetch('/rails/signup', {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Authorization": token
-    //         },
-    //         body: JSON.stringify(newUser),
-    //     })
-    //     .then(r => r.json())
-    //     .then(user => {
-    //         if (!user.errors) {
-    //             localStorage.setItem("token", user.token);
-    //             signup(user)
-    //             handleUser(user)
-    //             navigate('/')
-    //         } else {
-    //             const errors = user.errors.map(e => <li>{e}</li>)
-    //             setErrorsList(errors)
-    //         }
-    //     })
-    // }
 
     // Handles change event for form inputs
     const handleChange = (e) => {
@@ -185,7 +171,7 @@ const Signup = () => {
                     </Typography>
                   </Grid>
                 </Grid>
-                {/* <Typography style={{color: 'red', marginTop: "10px"}}>{errorsList}</Typography> */}
+                <Typography style={{color: 'red', marginTop: "10px"}}>{errorsList}</Typography>
               </Box>
             </Box>
             <Copyright sx={{ mt: 5 }} />
